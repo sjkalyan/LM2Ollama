@@ -11,7 +11,7 @@ class OllamaLinkerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Ollama Model Linker")
-        self.root.geometry("900x700")
+        self.root.geometry("950x750")
         self.root.configure(bg="#1e1e1e") # Dark gray background
         
         # Create a style for ttk widgets
@@ -32,10 +32,23 @@ class OllamaLinkerApp:
                            background='#007acc',
                            font=('Segoe UI', 12, 'bold'),
                            padding=12,
-                           borderwidth=2)
+                           borderwidth=2,
+                           relief=tk.RAISED)
         self.style.map('Process.TButton',
                       background=[('active', '#005a9e')],
-                      foreground=[('active', 'white')])
+                      foreground=[('active', 'white')],
+                      relief=[('active', tk.RAISED)])
+        # Add rounded button style (commented out due to styling limitations in ttk)
+        # self.style.configure('Rounded.TButton',
+        #                    foreground='white',
+        #                    background='#4ecdc4',
+        #                    font=('Segoe UI', 12, 'bold'),
+        #                    padding=10,
+        #                    borderwidth=2,
+        #                    relief=tk.RAISED)
+        # self.style.map('Rounded.TButton',
+        #               background=[('active', '#2a9d8f')],
+        #               foreground=[('active', 'white')])
         # Add success/error/info label styles for better feedback
         self.style.configure('Success.TLabel',
                            foreground='#4caf50',
@@ -85,12 +98,20 @@ class OllamaLinkerApp:
         
         self.log_area = scrolledtext.ScrolledText(log_frame, state='disabled', bg="#1e1e1e", fg="#cccccc",
                                                 insertbackground="white", font=("Consolas", 10),
-                                                borderwidth=0, highlightthickness=0)
+                                                borderwidth=0, highlightthickness=0, wrap=tk.NONE)
         self.log_area.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # Add a clear button for the log area
-        clear_btn = ttk.Button(main_frame, text="Clear Logs", command=self.clear_logs, style='Process.TButton')
-        clear_btn.pack(pady=(0, 10))
+        # Create a frame for action buttons at the bottom of main content
+        button_frame = tk.Frame(main_frame, bg="#1e1e1e")
+        button_frame.pack(fill=tk.X, pady=10)
+        
+        # Clear logs button
+        clear_btn = ttk.Button(button_frame, text="Clear Logs", command=self.clear_logs, style='Process.TButton')
+        clear_btn.pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Help button (now in the same frame)
+        help_btn = ttk.Button(button_frame, text="Help", command=self.show_help, style='Process.TButton')
+        help_btn.pack(side=tk.LEFT)
         
         # Status bar with better styling
         self.status_var = tk.StringVar()
@@ -109,10 +130,6 @@ class OllamaLinkerApp:
         # Add some visual enhancements
         self.root.update_idletasks()
         
-        # Add a help button for user guidance
-        help_btn = ttk.Button(root, text="Help", command=self.show_help, style='Process.TButton')
-        help_btn.pack(side=tk.RIGHT, padx=10, pady=10)
-        
     def clean_ansi(self, text):
         """Removes the messy ANSI escape codes that cause 'garbage' text."""
         ansi_escape = re.compile(r'\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
@@ -122,15 +139,15 @@ class OllamaLinkerApp:
         """Prints a clean line to the UI terminal."""
         clean_msg = self.clean_ansi(message).strip()
         if not clean_msg: return
-        
+         
         # Filter out the 'moving' progress lines to keep it clean
         if "%" in clean_msg and "copying" not in clean_msg.lower(): return
-        
+         
         self.log_area.configure(state='normal')
         self.log_area.insert(tk.END, f"  {clean_msg}\n")
         self.log_area.see(tk.END)
         self.log_area.configure(state='disabled')
-        
+         
         # Update status with more specific messages
         if "error" in message.lower() or "failed" in message.lower():
             self.status_var.set("Error occurred - Check logs")
