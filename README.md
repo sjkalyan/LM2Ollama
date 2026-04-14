@@ -30,7 +30,7 @@ A Python application that bridges LM Studio models with Ollama by creating symbo
 1. Clone or download this repository
 2. Install required dependencies:
    ```bash
-   pip install customtkinter
+   pip install tkinter
    ```
 3. Ensure LM Studio and Ollama are properly installed and configured
 
