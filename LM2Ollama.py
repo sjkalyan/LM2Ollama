@@ -1,6 +1,7 @@
 import os, subprocess, tkinter as tk, re, threading, time
 from tkinter import filedialog, messagebox, scrolledtext, ttk
 from pathlib import Path
+import webbrowser
 
 # --- CONFIG ---
 LM_STUDIO_DIR = r"E:\Ai\LLModels\lmstudio-community"
@@ -17,60 +18,100 @@ class OllamaLinkerApp:
         self.style = ttk.Style()
         self.style.theme_use('clam')
         
-        # Configure custom colors
-        self.style.configure('Title.TLabel', 
-                           foreground='#ffffff', 
+        # Configure custom colors with better visual hierarchy
+        self.style.configure('Title.TLabel',
+                           foreground='#ffffff',
                            background='#1e1e1e',
-                           font=('Segoe UI', 16, 'bold'))
-        self.style.configure('Header.TLabel', 
-                           foreground='#4ecdc4', 
+                           font=('Segoe UI', 18, 'bold'))
+        self.style.configure('Header.TLabel',
+                           foreground='#4ecdc4',
                            background='#1e1e1e',
-                           font=('Segoe UI', 12))
-        self.style.configure('Process.TButton', 
-                           foreground='white', 
-                           background='#007acc', 
-                           font=('Segoe UI', 11, 'bold'),
-                           padding=10)
+                           font=('Segoe UI', 12, 'bold'))
+        self.style.configure('Process.TButton',
+                           foreground='white',
+                           background='#007acc',
+                           font=('Segoe UI', 12, 'bold'),
+                           padding=12,
+                           borderwidth=2)
         self.style.map('Process.TButton',
-                      background=[('active', '#005a9e')])
+                      background=[('active', '#005a9e')],
+                      foreground=[('active', 'white')])
+        # Add success/error/info label styles for better feedback
+        self.style.configure('Success.TLabel',
+                           foreground='#4caf50',
+                           background='#1e1e1e',
+                           font=('Segoe UI', 10, 'bold'))
+        self.style.configure('Error.TLabel',
+                           foreground='#f44336',
+                           background='#1e1e1e',
+                           font=('Segoe UI', 10, 'bold'))
+        self.style.configure('Info.TLabel',
+                           foreground='#2196f3',
+                           background='#1e1e1e',
+                           font=('Segoe UI', 10, 'bold'))
         
-        # Header
+        # Configure a better progress bar style
+        self.style.configure('Custom.Horizontal.TProgressbar',
+                           troughcolor='#3d3d3d',
+                           background='#4ecdc4')
+        
+        # Header with enhanced styling
         title_label = ttk.Label(root, text="LM STUDIO → OLLAMA LINKER", style='Title.TLabel')
         title_label.pack(pady=(20, 10))
         
-        # Subheader
+        # Subheader with better visual hierarchy
         header_label = ttk.Label(root, text="Select a model folder to create an Ollama model link", style='Header.TLabel')
         header_label.pack(pady=(0, 20))
         
-        # Main frame for content
+        # Main frame for content with better padding and layout
         main_frame = tk.Frame(root, bg="#1e1e1e")
         main_frame.pack(fill=tk.BOTH, expand=True, padx=30, pady=10)
         
-        # Action Button
+        # Add a separator line for visual clarity
+        separator = tk.Frame(main_frame, height=2, bg="#4ecdc4")
+        separator.pack(fill=tk.X, pady=(0, 20))
+        
+        # Action Button with enhanced styling
         self.btn_select = ttk.Button(main_frame, text="[ SELECT MODEL FOLDER ]", command=self.start_link_thread, style='Process.TButton')
         self.btn_select.pack(pady=20)
         
-        # Progress bar for operations
-        self.progress = ttk.Progressbar(main_frame, mode='indeterminate', length=300)
+        # Progress bar for operations with better styling
+        self.progress = ttk.Progressbar(main_frame, mode='indeterminate', length=300, style='Custom.Horizontal.TProgressbar')
         self.progress.pack(pady=10)
         
         # Terminal Log Area with better styling
         log_frame = tk.Frame(main_frame, bg="#2d2d2d", relief=tk.RAISED, bd=1)
         log_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
-        self.log_area = scrolledtext.ScrolledText(log_frame, state='disabled', bg="#1e1e1e", fg="#cccccc", 
+        self.log_area = scrolledtext.ScrolledText(log_frame, state='disabled', bg="#1e1e1e", fg="#cccccc",
                                                 insertbackground="white", font=("Consolas", 10),
                                                 borderwidth=0, highlightthickness=0)
         self.log_area.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # Status bar
+        # Add a clear button for the log area
+        clear_btn = ttk.Button(main_frame, text="Clear Logs", command=self.clear_logs, style='Process.TButton')
+        clear_btn.pack(pady=(0, 10))
+        
+        # Status bar with better styling
         self.status_var = tk.StringVar()
         self.status_var.set("Ready")
-        status_bar = ttk.Label(root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
+        status_bar = ttk.Label(root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W,
+                              font=('Segoe UI', 9), padding=5)
         status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        # Add a footer with version info
+        footer_frame = tk.Frame(root, bg="#1e1e1e")
+        footer_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=(0, 10))
+        footer_label = ttk.Label(footer_frame, text="LM2Ollama v1.0 - LM Studio to Ollama Linker",
+                                style='Header.TLabel')
+        footer_label.pack(pady=5)
         
         # Add some visual enhancements
         self.root.update_idletasks()
+        
+        # Add a help button for user guidance
+        help_btn = ttk.Button(root, text="Help", command=self.show_help, style='Process.TButton')
+        help_btn.pack(side=tk.RIGHT, padx=10, pady=10)
         
     def clean_ansi(self, text):
         """Removes the messy ANSI escape codes that cause 'garbage' text."""
@@ -90,16 +131,20 @@ class OllamaLinkerApp:
         self.log_area.see(tk.END)
         self.log_area.configure(state='disabled')
         
-        # Update status
+        # Update status with more specific messages
         if "error" in message.lower() or "failed" in message.lower():
             self.status_var.set("Error occurred - Check logs")
         elif "success" in message.lower():
             self.status_var.set("Operation completed successfully")
+        elif "copying" in message.lower():
+            self.status_var.set("Copying model files...")
+        elif "parsing" in message.lower():
+            self.status_var.set("Parsing model data...")
         else:
             self.status_var.set("Processing...")
     
     def start_link_thread(self):
-        self.btn_select.config(state=tk.DISABLED, text="[ PROCESSING... ]")
+        self.btn_select.config(state=tk.DISABLED, text="[ PROCESSING... ]", style='Process.TButton')
         self.progress.start()
         threading.Thread(target=self.process_model, daemon=True).start()
     
@@ -167,10 +212,38 @@ class OllamaLinkerApp:
         self.reset_button()
     
     def reset_button(self):
-        self.btn_select.config(state=tk.NORMAL, text="[ SELECT MODEL FOLDER ]")
+        self.btn_select.config(state=tk.NORMAL, text="[ SELECT MODEL FOLDER ]", style='Process.TButton')
         self.progress.stop()
         self.status_var.set("Ready")
+    
+    def clear_logs(self):
+        """Clear the log area."""
+        self.log_area.configure(state='normal')
+        self.log_area.delete(1.0, tk.END)
+        self.log_area.configure(state='disabled')
+    
+    def show_help(self):
+        """Show help information."""
+        help_text = """
+LM2Ollama Help:
+- Click "SELECT MODEL FOLDER" to choose an LM Studio model directory
+- The app will find the largest GGUF file in that folder
+- It creates a Modelfile and registers it with Ollama
+- Creates symbolic links to save disk space
+- Progress is shown in the log area at the bottom
 
+Requirements:
+- LM Studio models installed
+- Ollama running and accessible
+- Administrative privileges for symlinks
+
+Troubleshooting:
+- If you get permission errors, run as administrator
+- Make sure your model folder contains a .gguf file
+- Verify Ollama is properly installed and running
+        """
+        messagebox.showinfo("LM2Ollama Help", help_text)
+ 
 if __name__ == "__main__":
     root = tk.Tk()
     app = OllamaLinkerApp(root)
