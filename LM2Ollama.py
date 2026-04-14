@@ -404,7 +404,9 @@ class OllamaLinkerApp:
             "Troubleshooting:\n"
             "• If symlink creation fails, run the app as Administrator\n"
             "• If no GGUF file is found, verify the selected folder\n"
-            "• If Ollama create fails, verify Ollama is installed and working"
+            "• If Ollama create fails, verify Ollama is installed and working\n\n"
+            "Author:\n"
+            "• Kalya Sura\n"
         )
         messagebox.showinfo("LM2Ollama Help", help_text)
 
