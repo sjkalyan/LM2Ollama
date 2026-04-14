@@ -12,15 +12,15 @@ LM_STUDIO_DIR = r"E:\Ai\LLModels\lmstudio-community"
 OLLAMA_BLOB_DIR = Path(os.environ["USERPROFILE"]) / ".ollama" / "models" / "blobs"
 
 # --- THEME ---
-BG_MAIN = "#0f172a"       # deep slate
-BG_CARD = "#1e293b"       # card surface
+BG_MAIN = "#181f2e"       # deep slate
+BG_CARD = "#272f3b"       # card surface
 BG_TERMINAL = "#020617"   # terminal/log area
-ACCENT = "#3b82f6"        # slate blue
-ACCENT_HOVER = "#2563eb"
+ACCENT = "#3baef6"        # slate blue
+ACCENT_HOVER = "#25d1eb"
 HIGHLIGHT = "#22c55e"     # green
 TEXT = "#e2e8f0"
 MUTED = "#94a3b8"
-BORDER = "#334155"
+BORDER = "#272f3b"
 ERROR = "#ef4444"
 WARNING = "#f59e0b"
 INFO = "#38bdf8"
@@ -112,14 +112,14 @@ class OllamaLinkerApp:
         header.pack(fill=tk.X, pady=(0, 16))
 
         title_label = ttk.Label(header, text="LM STUDIO → OLLAMA LINKER", style="Title.TLabel")
-        title_label.pack(anchor="w")
+        title_label.pack(anchor="center")
 
         subtitle_label = ttk.Label(
             header,
             text="Select a model folder and register it with Ollama while reclaiming duplicate storage.",
             style="Subtitle.TLabel"
         )
-        subtitle_label.pack(anchor="w", pady=(6, 0))
+        subtitle_label.pack(anchor="center", pady=(6, 0))
 
         # Main card
         card = tk.Frame(
