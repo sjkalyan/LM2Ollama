@@ -50,38 +50,6 @@ A Python application that bridges LM Studio models with Ollama by creating symbo
    - Create symbolic links to reclaim space
    - Display progress and completion status
 
-## UI Improvements Suggested
-
-### Current Issues:
-- Limited visual feedback during operations
-- Basic progress indication
-- Minimal error handling visualization
-- Monochromatic color scheme
-- No loading states or animations
-
-### Proposed Improvements:
-1. **Enhanced Visual Design**:
-   - Modern color scheme with better contrast
-   - Improved button styling and hover effects
-   - More intuitive layout organization
-
-2. **Better User Feedback**:
-   - Progress indicators for each step
-   - Clearer status messages
-   - Visual warnings for potential issues
-   - Loading animations during operations
-
-3. **Improved Functionality**:
-   - Model preview before linking
-   - Batch processing capability
-   - History of linked models
-   - Settings panel for customization
-
-4. **Accessibility Features**:
-   - Better keyboard navigation
-   - High contrast mode options
-   - Screen reader support
-
 ## Troubleshooting
 
 ### Common Issues:
