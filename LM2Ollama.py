@@ -406,7 +406,8 @@ class OllamaLinkerApp:
             "• If no GGUF file is found, verify the selected folder\n"
             "• If Ollama create fails, verify Ollama is installed and working\n\n"
             "Author:\n"
-            "• Kalya Sura\n"
+            "• Kalyan Sura\n"
+            "• This is a free tool and should remain free under MIT License\n"
         )
         messagebox.showinfo("LM2Ollama Help", help_text)
 
